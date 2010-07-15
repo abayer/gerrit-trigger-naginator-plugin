@@ -10,6 +10,10 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
+
+import com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger;
+import com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.BadgeAction;
+
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -130,6 +134,16 @@ public class NaginatorPublisher extends Notifier {
             return true;
         }
         else {
+            GerritTrigger gt = (GerritTrigger) build.getProject().getTrigger(GerritTrigger.class);
+            if (gt != null) {
+                BadgeAction ba = (BadgeAction) build.getAction(BadgeAction.class);
+                
+                if (ba != null) {
+                    gt.gerritEvent(ba.getEvent());
+                    return true;
+                }
+            }
+            
             return build.getProject().scheduleBuild(n*60, new NaginatorCause());
         }
     }
